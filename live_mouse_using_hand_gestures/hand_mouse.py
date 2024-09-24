@@ -5,6 +5,7 @@ import utils
 import pyautogui
 from pynput.mouse import Button, Controller
 import numpy as np
+
 screen_width, screen_height = pyautogui.size()
 mouse = Controller()
 cap = cv2.VideoCapture(0)
@@ -14,7 +15,7 @@ mpHands = mp.solutions.hands
 hand = mpHands.Hands(
     static_image_mode=False,
     model_complexity=1,
-    min_detection_confidence=0.7,  
+    min_detection_confidence=0.7,
     min_tracking_confidence=0.7,
     max_num_hands=2
 )
@@ -38,35 +39,35 @@ def left_click(landmark_list, thumb_index_dist):
     return (
             thumb_index_dist > 50
             and utils.get_angle(landmark_list[8], landmark_list[6], landmark_list[5]) < 90
-            and utils.get_angle(landmark_list[12], landmark_list[10], landmark_list[9]) > 90
+            and utils.get_angle(landmark_list[12],landmark_list[10],landmark_list[9]) > 90
     )
 
 def right_click(landmark_list, thumb_index_dist):
     return (
             thumb_index_dist > 50
             and utils.get_angle(landmark_list[8], landmark_list[6], landmark_list[5]) > 90
-            and utils.get_angle(landmark_list[12], landmark_list[10], landmark_list[9]) < 90
+            and utils.get_angle(landmark_list[12],landmark_list[10],landmark_list[9]) < 90
     )
 def double_click(landmark_list, thumb_index_dist):
     return (
             thumb_index_dist > 50
             and utils.get_angle(landmark_list[8], landmark_list[6], landmark_list[5]) < 90
-            and utils.get_angle(landmark_list[12], landmark_list[10], landmark_list[9]) < 90
+            and utils.get_angle(landmark_list[12],landmark_list[10],landmark_list[9]) < 90
     )
 def screen_shot(landmark_list, thumb_index_dist):
     return (
             thumb_index_dist < 50
             and utils.get_angle(landmark_list[8], landmark_list[6], landmark_list[5]) < 90
-            and utils.get_angle(landmark_list[12], landmark_list[10], landmark_list[9]) < 90
+            and utils.get_angle(landmark_list[12],landmark_list[10],landmark_list[9]) < 90
     )
 
 def detect_gestures(frame, landmark_list, processed):
     if len(landmark_list) >=21:
         index_finger_tip = find_finger_tip(processed)
-        thumb_index_distant = utils.get_distance([landmark_list[4], landmark_list[5]])
+        thumb_index_distant = utils.get_distance([landmark_list[4],landmark_list[5]])
 
         # move the mouse
-        if thumb_index_distant < 50 and utils.get_angle(landmark_list[8], landmark_list[6], landmark_list[5])>90:
+        if thumb_index_distant < 50 and utils.get_angle(landmark_list[8],landmark_list[6],landmark_list[5])>90:
             mouse_move(index_finger_tip)
         # LEFT CLICK
         elif left_click(landmark_list, thumb_index_distant):
@@ -95,7 +96,12 @@ def main():
         success,img = cap.read()
         img = cv2.flip(img,1)
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        if not success:
+            print("Không thể nhận frame từ camera")
+            break
         # xu ly frame
+
         processed = hand.process(imgRGB)
 
         landmark_list = []
